@@ -12,17 +12,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @Transactional
 @Rollback(false)
-class MemberJpaRepositoryTest {
+class MemberRepositoryTest {
 
     @Autowired
-    MemberJpaRepository memberJpaRepository;
+    MemberRepository memberRepository;
 
     @Test
     public void testMember() {
-        Member member = new Member("MemberA");
-        Member savedMember = memberJpaRepository.save(member);
 
-        Member findMember = memberJpaRepository.find(member.getId());
+        Member member = new Member("MemberA");
+        Member savedMember = memberRepository.save(member);
+
+        Member findMember = memberRepository.findById(member.getId()).get();
 
         assertThat(findMember.getId()).isEqualTo(member.getId());
         assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
