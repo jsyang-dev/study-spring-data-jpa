@@ -1,6 +1,8 @@
-package me.study.springdatajpa.repository;
+package me.study.datajpa.repository;
 
-import me.study.springdatajpa.entity.Member;
+import me.study.datajpa.dto.MemberDto;
+import me.study.datajpa.entity.Member;
+import me.study.datajpa.entity.Team;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +20,9 @@ class MemberRepositoryTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    TeamRepository teamRepository;
 
     @Test
     public void testMember() {
@@ -93,5 +98,33 @@ class MemberRepositoryTest {
         List<Member> result = memberRepository.findMember("Member1", 10);
         Member findMember = result.get(0);
         assertThat(findMember).isEqualTo(member1);
+    }
+
+    @Test
+    public void findUsernameList() {
+        Member member1 = new Member("Member1", 10);
+        Member member2 = new Member("Member2", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<String> usernameList = memberRepository.findUsernameList();
+        for (String s : usernameList) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    @Test
+    public void findMemberDto() {
+        Team team = new Team("TeamA");
+        teamRepository.save(team);
+
+        Member member1 = new Member("Member1", 10);
+        member1.setTeam(team);
+        memberRepository.save(member1);
+
+        List<MemberDto> memberDtoList = memberRepository.findMemberDto();
+        for (MemberDto memberDto : memberDtoList) {
+            System.out.println("memberDto = " + memberDto);
+        }
     }
 }

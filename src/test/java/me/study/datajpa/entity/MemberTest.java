@@ -1,4 +1,4 @@
-package me.study.springdatajpa.entity;
+package me.study.datajpa.entity;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
