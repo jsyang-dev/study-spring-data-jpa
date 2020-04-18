@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -125,6 +126,19 @@ class MemberRepositoryTest {
         List<MemberDto> memberDtoList = memberRepository.findMemberDto();
         for (MemberDto memberDto : memberDtoList) {
             System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    @Test
+    public void findByNames() {
+        Member member1 = new Member("Member1", 10);
+        Member member2 = new Member("Member2", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<Member> result = memberRepository.findByNames(Arrays.asList("Member1", "Member2"));
+        for (Member member : result) {
+            System.out.println("member = " + member);
         }
     }
 }
