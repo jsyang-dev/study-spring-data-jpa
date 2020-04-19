@@ -30,6 +30,9 @@ class MemberRepositoryTest {
     @Autowired
     TeamRepository teamRepository;
 
+//    @PersistenceContext
+//    private EntityManager em;
+
     @Test
     public void testMember() {
 
@@ -235,5 +238,26 @@ class MemberRepositoryTest {
 
         // Then
         assertThat(list.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void bulkUpdate() {
+        // Given
+        memberRepository.save(new Member("Member1", 10));
+        memberRepository.save(new Member("Member2", 19));
+        memberRepository.save(new Member("Member3", 20));
+        memberRepository.save(new Member("Member4", 21));
+        memberRepository.save(new Member("Member5", 40));
+
+        // When
+        int resultCount = memberRepository.bulkAgePlus(20);
+//        em.clear();
+
+        List<Member> result = memberRepository.findByUsername("Member5");
+        Member member5 = result.get(0);
+        System.out.println("member5 = " + member5);
+
+        // When
+        assertThat(resultCount).isEqualTo(3);
     }
 }
