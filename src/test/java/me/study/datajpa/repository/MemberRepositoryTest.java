@@ -13,6 +13,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +32,8 @@ class MemberRepositoryTest {
     @Autowired
     TeamRepository teamRepository;
 
-//    @PersistenceContext
-//    private EntityManager em;
+    @PersistenceContext
+    private EntityManager em;
 
     @Test
     public void testMember() {
@@ -259,5 +261,96 @@ class MemberRepositoryTest {
 
         // When
         assertThat(resultCount).isEqualTo(3);
+    }
+
+    @Test
+    public void findMemberLazy() {
+        // Given
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("Member1", 10, teamA);
+        Member member2 = new Member("Member2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        // When
+        List<Member> members = memberRepository.findAll();
+
+        for (Member member : members) {
+            System.out.println("member = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getClass());
+            System.out.println("member.team = " + member.getTeam().getName());
+        }
+    }
+
+    @Test
+    public void findMemberFetch() {
+        // Given
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("Member1", 10, teamA);
+        Member member2 = new Member("Member2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        // When
+        List<Member> members = memberRepository.findMemberFetchJoin();
+
+        for (Member member : members) {
+            System.out.println("member = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getClass());
+            System.out.println("member.team = " + member.getTeam().getName());
+        }
+    }
+
+    @Test
+    public void findMemberEntityGraph() {
+        // Given
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("Member1", 10, teamA);
+        Member member2 = new Member("Member2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        // When
+        List<Member> members1 = memberRepository.findAll();
+        for (Member member : members1) {
+            System.out.println("member = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getClass());
+            System.out.println("member.team = " + member.getTeam().getName());
+        }
+
+        List<Member> members2 = memberRepository.findMemberEntityGraph();
+        for (Member member : members2) {
+            System.out.println("member = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getClass());
+            System.out.println("member.team = " + member.getTeam().getName());
+        }
+
+        List<Member> members3 = memberRepository.findEntityGraphByUsername("Member1");
+        for (Member member : members3) {
+            System.out.println("member = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getClass());
+            System.out.println("member.team = " + member.getTeam().getName());
+        }
     }
 }
