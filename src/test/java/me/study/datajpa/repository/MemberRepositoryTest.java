@@ -7,6 +7,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -52,6 +54,7 @@ class MemberRepositoryTest {
 
     @Test
     public void basicCRUD() {
+
         Member member1 = new Member("Member1");
         Member member2 = new Member("Member2");
         memberRepository.save(member1);
@@ -77,6 +80,7 @@ class MemberRepositoryTest {
 
     @Test
     public void findByUsernameAndAgeGreaterThan() {
+
         Member member1 = new Member("Member", 10);
         Member member2 = new Member("Member", 20);
         memberRepository.save(member1);
@@ -91,6 +95,7 @@ class MemberRepositoryTest {
 
     @Test
     public void testNamedQuery() {
+
         Member member1 = new Member("Member1", 10);
         Member member2 = new Member("Member2", 20);
         memberRepository.save(member1);
@@ -103,6 +108,7 @@ class MemberRepositoryTest {
 
     @Test
     public void testQuery() {
+
         Member member1 = new Member("Member1", 10);
         Member member2 = new Member("Member2", 20);
         memberRepository.save(member1);
@@ -115,6 +121,7 @@ class MemberRepositoryTest {
 
     @Test
     public void findUsernameList() {
+
         Member member1 = new Member("Member1", 10);
         Member member2 = new Member("Member2", 20);
         memberRepository.save(member1);
@@ -128,6 +135,7 @@ class MemberRepositoryTest {
 
     @Test
     public void findMemberDto() {
+
         Team team = new Team("TeamA");
         teamRepository.save(team);
 
@@ -143,6 +151,7 @@ class MemberRepositoryTest {
 
     @Test
     public void findByNames() {
+
         Member member1 = new Member("Member1", 10);
         Member member2 = new Member("Member2", 20);
         memberRepository.save(member1);
@@ -156,6 +165,7 @@ class MemberRepositoryTest {
 
     @Test
     public void returnType() {
+
         Member member1 = new Member("Member1", 10);
         Member member2 = new Member("Member2", 20);
         memberRepository.save(member1);
@@ -175,6 +185,7 @@ class MemberRepositoryTest {
 
     @Test
     public void findPageByAge() {
+
         // Given
         memberRepository.save(new Member("Member1", 10));
         memberRepository.save(new Member("Member2", 10));
@@ -203,6 +214,7 @@ class MemberRepositoryTest {
 
     @Test
     public void findSliceByAge() {
+
         // Given
         memberRepository.save(new Member("Member1", 10));
         memberRepository.save(new Member("Member2", 10));
@@ -227,6 +239,7 @@ class MemberRepositoryTest {
 
     @Test
     public void findListByAge() {
+
         // Given
         memberRepository.save(new Member("Member1", 10));
         memberRepository.save(new Member("Member2", 10));
@@ -246,6 +259,7 @@ class MemberRepositoryTest {
 
     @Test
     public void bulkUpdate() {
+
         // Given
         memberRepository.save(new Member("Member1", 10));
         memberRepository.save(new Member("Member2", 19));
@@ -267,6 +281,7 @@ class MemberRepositoryTest {
 
     @Test
     public void findMemberLazy() {
+
         // Given
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
@@ -293,6 +308,7 @@ class MemberRepositoryTest {
 
     @Test
     public void findMemberFetch() {
+
         // Given
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
@@ -319,6 +335,7 @@ class MemberRepositoryTest {
 
     @Test
     public void findMemberEntityGraph() {
+
         // Given
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
@@ -358,6 +375,7 @@ class MemberRepositoryTest {
 
     @Test
     public void queryHint() {
+
         // Given
         Member member = new Member("Member1", 10);
         memberRepository.save(member);
@@ -373,6 +391,7 @@ class MemberRepositoryTest {
 
     @Test
     public void lock() {
+
         // Given
         Member member = new Member("Member1", 10);
         memberRepository.save(member);
@@ -390,6 +409,7 @@ class MemberRepositoryTest {
 
     @Test
     public void specBasic() {
+
         // Given
         Team teamA = new Team("TeamA");
         em.persist(teamA);
@@ -408,5 +428,34 @@ class MemberRepositoryTest {
 
         // Then
         Assertions.assertThat(result.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void queryByExample() {
+
+        // Given
+        Team teamA = new Team("TeamA");
+        em.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+        // When
+        Member member = new Member("m1");
+        Team team = new Team("TeamA");
+        member.setTeam(team);
+
+        ExampleMatcher matcher = ExampleMatcher.matching().withIgnorePaths("age");
+        Example<Member> example = Example.of(member, matcher);
+
+        List<Member> result = memberRepository.findAll(example);
+
+        // Then
+        assertThat(result.get(0).getUsername()).isEqualTo("m1");
     }
 }
